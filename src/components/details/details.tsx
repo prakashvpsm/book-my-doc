@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Drawer, theme } from 'antd';
+import { Link } from 'react-router-dom';
 import CreateNewSlot from '../createNewSlot/createNewSlot';
+import { localDB } from '../../config/localdb';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 import { doctorsMock } from '../../mocks/doctors'
 import profileImg from '../../assets/profile.png'
@@ -21,9 +24,18 @@ interface StateOBJ {
 
 export default function Details({ id }: Props) {
 
-    const existinSlots = useSelector((state: StateOBJ) => state?.docs?.slots);
-    const [open, setOpen] = useState(false);
+    const existingslots = useLiveQuery(
+        () => localDB.table("slots").toArray()
+    );
 
+    const sortedTime = existingslots?.sort(function (a, b) {
+        return a.startTime.localeCompare(b.startTime);
+    });
+
+    const filterSlots = sortedTime?.filter(d => d.docId === id)
+
+
+    const [open, setOpen] = useState(false);
 
     const filterDoc = doctorsMock.filter(doc => doc.doctorId === id);
     const doc = filterDoc.length > 0 ? filterDoc[0] : null
@@ -38,11 +50,14 @@ export default function Details({ id }: Props) {
     };
 
 
-    console.log(existinSlots, 'existinSlots')
     return (
         <div className='w-4/6 mx-auto'>
+
+            <div>
+                <Link to={"/"} className='text-primary font-semibold'>  {"<<"} Go back</Link>
+            </div>
             {
-                doc ? <div className='flex flex-col gap-4'>
+                doc ? <div className='flex flex-col gap-4 mt-10'>
                     <div className='flex gap-5 shadow rounded-md border-b-4 border-primary'>
 
                         <div className='bg-secondary/20 rounded-md p-3 relative'>
@@ -73,6 +88,17 @@ export default function Details({ id }: Props) {
                                 <button onClick={showDrawer} className='bg-red-400 text-white rounded px-5 p-2 text-sm font-semibold hover:bg-red-400/70'>Create new slot</button>
                             </div>
                         </div>
+                        <div className='mt-10'>
+                            {filterSlots && filterSlots.length > 0 ?<div className='flex gap-5'>
+                                {
+                                    filterSlots.map(slot => {
+                                        return <div  className='bg-secondary/10 text-primary text-sm p-2 rounded-md'>
+                                            <div>{slot.startTime} - {slot.endTime}</div>
+                                        </div>
+                                    })
+                                }
+                            </div> : <></>}
+                        </div>
                     </div>
                 </div> : <div>No doctors available in this id</div>
             }
@@ -85,7 +111,7 @@ export default function Details({ id }: Props) {
                 getContainer={false}
             >
                 <div>
-                    <CreateNewSlot />
+                    <CreateNewSlot id={id} onClose={() =>setOpen(false)} />
                 </div>
             </Drawer>
         </div>

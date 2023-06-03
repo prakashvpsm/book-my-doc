@@ -2,6 +2,7 @@ import React from 'react'
 import { Select } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setFilters } from '../../state/reducers/docs';
+import CalanderView from '../calander';
 
 const filters = [
     {
@@ -59,7 +60,7 @@ export default function Filters() {
     }
 
     return (
-        <div className='flex flex-col gap-10 h-screen bg-gray-100/60 p-10 rounded-md shadow'>
+        <div className='flex flex-col gap-10 bg-gray-100/60 p-10 rounded-md shadow'>
             <div><h2 className='font-semibold text-xl'>Filters:</h2></div>
             <div>
                 <div className='flex flex-col gap-5'>
@@ -81,8 +82,14 @@ export default function Filters() {
                     }
                 </div>
             </div>
+
             <div className=''>
                 <button onClick={clearAll} className='text-primary underline text-sm'>Clear All filters</button>
+            </div>
+
+
+            <div>
+                <CalanderView />
             </div>
 
         </div>

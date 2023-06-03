@@ -31,6 +31,7 @@ interface StateOBJ{
 }
 
 export default function Doctors({ doctors }: Props) {
+    
     const existingFilters = useSelector((state:StateOBJ) => state?.docs?.filters);
 
     const filteredDocs = Object.keys(existingFilters).length > 0 && doctors?.length > 0 ? doctors.filter(doc => {

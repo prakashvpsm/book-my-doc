@@ -7,7 +7,7 @@ export default function Home() {
     return (
         <div className='w-full'>
             <div className='flex gap-5'>
-                <div className='w-2/6'>
+                <div className='w-4/12'>
                     <Filters />
                 </div>
                 <div className=''>
