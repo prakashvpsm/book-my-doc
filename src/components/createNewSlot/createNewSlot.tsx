@@ -57,6 +57,15 @@ export default function CreateNewSlot({ id, onClose }: Props) {
                     }
                 })
             }
+        }else{
+            setSlots(prev => {
+                return {
+                    ...prev,
+                    startTime: formatString[0],
+                    endTime: formatString[1],
+                    docId: id
+                }
+            })  
         }
 
         // const timeDifference = dayjsObj[1].diff(dayjsObj[0]);
