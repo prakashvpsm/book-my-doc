@@ -51,14 +51,14 @@ export default function Details({ id }: Props) {
 
 
     return (
-        <div className='w-4/6 mx-auto'>
+        <div className='md:w-4/6 mx-auto'>
 
             <div>
                 <Link to={"/"} className='text-primary font-semibold'>  {"<<"} Go back</Link>
             </div>
             {
                 doc ? <div className='flex flex-col gap-4 mt-10'>
-                    <div className='flex gap-5 shadow rounded-md border-b-4 border-primary'>
+                    <div className='md:flex gap-5 shadow rounded-md border-b-4 border-primary'>
 
                         <div className='bg-secondary/20 rounded-md p-3 relative'>
 
@@ -89,7 +89,7 @@ export default function Details({ id }: Props) {
                             </div>
                         </div>
                         <div className='mt-10'>
-                            {filterSlots && filterSlots.length > 0 ?<div className='flex gap-5'>
+                            {filterSlots && filterSlots.length > 0 ?<div className='flex md:flex-row flex-col gap-5'>
                                 {
                                     filterSlots.map(slot => {
                                         return <div  className='bg-secondary/10 text-primary text-sm p-2 rounded-md'>
@@ -109,6 +109,7 @@ export default function Details({ id }: Props) {
                 onClose={onClose}
                 open={open}
                 getContainer={false}
+                
             >
                 <div>
                     <CreateNewSlot id={id} onClose={() =>setOpen(false)} />

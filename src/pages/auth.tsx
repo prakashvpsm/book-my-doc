@@ -20,7 +20,7 @@ export default function Auth() {
   }
   return (
     <div className='h-screen w-full flex items-center justify-center bg-gray-100/40'>
-      <div className='w-3/12 min-h-[300px] rounded-md shadow-lg bg-white flex flex-col items-center border border-gray-200'>
+      <div className='md:w-3/12 w-full min-h-[300px] rounded-md shadow-lg bg-white flex flex-col items-center border border-gray-200'>
         <div className='w-full h-5 bg-primary'></div>
         <div className='w-full p-5'>
           <div className='flex flex-col items-center justify-center gap-5 my-8'>
@@ -54,7 +54,7 @@ export default function Auth() {
               <Input type='number' />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Form.Item className='text-center'>
               <Button className='bg-primary text-white' htmlType="submit">
                 Continue
               </Button>

@@ -6,8 +6,8 @@ import { doctorsMock } from '../mocks/doctors';
 export default function Home() {
     return (
         <div className='w-full'>
-            <div className='flex gap-5'>
-                <div className='w-4/12'>
+            <div className='md:flex  gap-5'>
+                <div className='md:w-4/12'>
                     <Filters />
                 </div>
                 <div className=''>

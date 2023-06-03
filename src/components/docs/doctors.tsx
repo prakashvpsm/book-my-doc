@@ -44,7 +44,7 @@ export default function Doctors({ doctors }: Props) {
             <div className='flex flex-col gap-10  w-full '>
                 {
                     filteredDocs?.map(doc => {
-                        return <div className='flex gap-5 shadow rounded-md border-b-4 border-primary'>
+                        return <div className='md:flex gap-5  shadow rounded-md border-b-4 border-primary'>
                             <div className='bg-secondary/20 rounded-md p-3 relative'>
 
                                 <img className='w-24 h-24 z-10' src={profileImg} alt="profile" />

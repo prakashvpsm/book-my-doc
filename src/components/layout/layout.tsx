@@ -20,7 +20,7 @@ export default function Layout({children}:Props) {
           <button onClick={logout} className='text-white'>Logout</button>
         </div>
       </div>
-      <div className='p-10 mt-16'>{children}</div>
+      <div className='md:p-10 mt-16'>{children}</div>
     </div>
   )
 }
