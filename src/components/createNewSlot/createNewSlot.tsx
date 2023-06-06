@@ -12,11 +12,17 @@ export interface Props {
     onClose?: () => void
 }
 
+export interface RecommendedArray {
+    startTime?: string,
+    endTime?: string,
+}
 export default function CreateNewSlot({ id, onClose }: Props) {
 
     const [error, setError] = useState<any>();
-    const [recommended, setRecommendSlots] = useState({});
+    const [recommended, setRecommendSlots] = useState<Array<RecommendedArray>>([]);
     const [selectedSlots, setSlots] = useState({});
+    const [selectedFromSuggestion, setSuggestionSelect] = useState<number>();
+
     const [loading, setLoading] = useState<boolean>(false);
 
 
@@ -31,22 +37,89 @@ export default function CreateNewSlot({ id, onClose }: Props) {
 
     const getTimeRange = (dayjsObj: any, formatString: Array<string>) => {
 
-        const difference = dayjsObj[1].diff(dayjsObj[0]);
+        const difference = dayjsObj[1].diff(dayjsObj[0], 'minute');
 
         setSlots({})
         setError(null)
 
         if (existingslots && existingslots?.length > 0) {
+            //sort
             const sortedTime = existingslots.sort(function (a, b) {
                 return a.startTime.localeCompare(b.startTime);
             });
-            const ifExists = existingslots.find(slot => checkIfThetimeIsbetweenTwo(formatString[0], slot?.startTime, slot?.endTime))
 
-            if (ifExists) {
-                const firstSlotTime = sortedTime[0].startTime;
+            const ifExists = existingslots.find(slot => checkIfThetimeIsbetweenTwo(formatString[0], slot?.startTime, slot?.endTime))
+            const isStartTimeConflicts = sortedTime.find(slt => {
+                const selectedTime = moment(formatString[0], 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                const sltStartSeconds = moment(slt.startTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                const sltEndSeconds = moment(slt.endTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                if (selectedTime >= sltStartSeconds && selectedTime <= sltEndSeconds) {
+                    return true
+                } else {
+                    return false
+                }
+            });
+            
+            const isEndTimeConflicts = sortedTime.find(slt => {
+                const selectedTime = moment(formatString[1], 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                const sltStartSeconds = moment(slt.startTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                const sltEndSeconds = moment(slt.endTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                if (selectedTime >= sltStartSeconds && selectedTime <= sltEndSeconds) {
+                    return true
+                } else {
+                    return false
+                }
+            });
+
+            if (isStartTimeConflicts || isEndTimeConflicts) {
+
+                const firstSlotTime = sortedTime[0].endTime;
+                console.log(difference, 'diif')
+                console.log(moment(firstSlotTime, 'hh:mm A').add(difference, 'minutes').format('hh:mm A'))
                 const endSlotTime = sortedTime[sortedTime.length - 1].endTime;
 
-                setError('Select another time slot. This current slot have conflict with other time slots')
+                const suggSlot: Array<object> = []
+
+                sortedTime.forEach((slot) => {
+                    const newStartTime = moment(slot.endTime, 'hh:mm A').add(1, 'minutes').format('hh:mm A');
+                    const newEndTime = moment(newStartTime, 'hh:mm A').add(difference, 'minutes').format('hh:mm A');
+
+                    const newStartTimeToSeconds = moment(newStartTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                    const newEndTimeToSeconds = moment(newEndTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+
+                    const isStartTimeConflicting = sortedTime.find(slt => {
+                        const sltStartSeconds = moment(slt.startTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                        const sltEndSeconds = moment(slt.endTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                        if (newStartTimeToSeconds >= sltStartSeconds && newStartTimeToSeconds <= sltEndSeconds) {
+                            return true
+                        } else {
+                            return false
+                        }
+                    });
+                    const isEndTimeConflicting = sortedTime.find(slt => {
+                        const sltStartSeconds = moment(slt.startTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                        const sltEndSeconds = moment(slt.endTime, 'HH:mm:ss: A').diff(moment().startOf('day'), 'seconds');
+                        if (newEndTimeToSeconds >= sltStartSeconds && newEndTimeToSeconds <= sltEndSeconds) {
+                            return true
+                        } else {
+                            return false
+                        }
+                    });
+                    console.log(isStartTimeConflicting, isEndTimeConflicting, 'strtt', newStartTime, newEndTime, '|', slot)
+                    if (isStartTimeConflicting === undefined && isEndTimeConflicting === undefined) {
+                        suggSlot.push({
+                            startTime: newStartTime,
+                            endTime: newEndTime,
+                            docId: id
+                        })
+                    }
+                })
+
+                setRecommendSlots(suggSlot)
+
+                console.log(firstSlotTime, 'firstslottim')
+
+                setError('This current slot have conflict with other time slots. You may choose below time slot or select another time slot from picker ')
             } else {
                 setSlots(prev => {
                     return {
@@ -57,7 +130,7 @@ export default function CreateNewSlot({ id, onClose }: Props) {
                     }
                 })
             }
-        }else{
+        } else {
             setSlots(prev => {
                 return {
                     ...prev,
@@ -65,7 +138,7 @@ export default function CreateNewSlot({ id, onClose }: Props) {
                     endTime: formatString[1],
                     docId: id
                 }
-            })  
+            })
         }
 
         // const timeDifference = dayjsObj[1].diff(dayjsObj[0]);
@@ -91,9 +164,9 @@ export default function CreateNewSlot({ id, onClose }: Props) {
     const addSlots = async (data: object) => {
         setLoading(true)
         const res = await localDB.table("slots").add({ ...data })
-        if(res){
+        if (res) {
             setSlots({})
-            if(onClose){
+            if (onClose) {
                 onClose()
             }
         }
@@ -126,7 +199,12 @@ export default function CreateNewSlot({ id, onClose }: Props) {
     };
 
     const createSlot = () => {
-        addSlots(selectedSlots)
+        if (selectedFromSuggestion) {
+            addSlots(recommended[selectedFromSuggestion - 5])
+
+        } else {
+            addSlots(selectedSlots)
+        }
     }
     return (
         <div>
@@ -135,13 +213,23 @@ export default function CreateNewSlot({ id, onClose }: Props) {
                 <div>
                     <TimePicker.RangePicker disabledTime={disabledRangeTime} onChange={getTimeRange} order={true} format="hh:mm A" />
                 </div>
-                <div>
+                <div className='flex flex-col gap-4'>
                     {
                         error ? <div className='text-red-600 text-sm'>{error}</div> : <></>
                     }
+                    {
+                        recommended && recommended.length > 0 ? <div className='w-full flex flex-col gap-3'>
+                            <div className='font-bold'>Suggestions:</div>
+                            {
+                                recommended?.map((r, i) => {
+                                    return <div onClick={() => setSuggestionSelect(i + 5)} className={`cursor-pointer p-2 shadow px-3 rounded-md  ${selectedFromSuggestion === i + 5 ? 'bg-secondary/40' : 'bg-secondary/5'}`}>{r?.startTime} - {r?.endTime}</div>
+                                })
+                            }
+                        </div> : <></>
+                    }
                 </div>
                 <div className='ml-auto mt-10'>
-                    <button onClick={createSlot} disabled={Object.keys(selectedSlots).length > 0 ? false : true} className='bg-primary px-8 py-2 rounded-md text-white'>Create new slot</button>
+                    <button onClick={createSlot} disabled={Object.keys(selectedSlots).length > 0 || selectedFromSuggestion ? false : true} className={` px-8 py-2 rounded-md text-white ${Object.keys(selectedSlots).length > 0 || selectedFromSuggestion ? 'bg-primary' : 'bg-gray-400'}`}>Create new slot</button>
                 </div>
             </div>
         </div>

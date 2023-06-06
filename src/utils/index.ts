@@ -19,9 +19,9 @@ export const checkIfThetimeIsbetweenTwo = (selectedTime: string, startTime: stri
     var startTimeSecondsParsed = hmsToSecondsOnly(startTimeSeconds)
     var endTimeSecondssParsed = hmsToSecondsOnly(endTimeSeconds)
 
-    console.log(selectedTimeSecondsParsed)
-    console.log(startTimeSecondsParsed)
-    console.log(endTimeSecondssParsed)
+    console.log(selectedTimeSecondsParsed, 'kka')
+    console.log(startTimeSecondsParsed, 'saa')
+    console.log(endTimeSecondssParsed, 'aksja')
 
     /* need logic to convert time to Date Format */
 
